@@ -1,0 +1,27 @@
+Login
+    (Dashboard)
+    Consultas
+        (Apartados)
+        Listado
+    Medicamentos
+        (Apartados)
+        Listado
+        Registro
+    Pacientes
+        (Apartados)
+        Capturar
+        Listado
+        Recetas
+        Registrar
+
+Dashboard
+    Consultas
+        HistorialConsultas
+    Medicamentos
+        CatalogoMedicamentos
+        RegistroMedicamentos
+    Pacientes
+        CapturarDatosMedicos
+        ListadoPacientes
+        RecetasPacientes
+        RegistrarPaciente
