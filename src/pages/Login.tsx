@@ -4,8 +4,8 @@ import logo from "../assets/img/logo.png";
 import { login } from "@/services/authService";  
 export default function Login() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("Cime");
-  const [password, setPassword] = useState("cime1");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
