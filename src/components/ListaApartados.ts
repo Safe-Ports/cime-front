@@ -63,7 +63,7 @@ export const ListaSubApartados = {
         path: "/dashboard/pacientes/recetaspacientes",
       },
       {
-        title: "Listado de Pacientes",
+        title: "Expedientes Médicos",
         icon: Icons.FaClipboardList,
         path: "/dashboard/pacientes/listadopacientes",
       }

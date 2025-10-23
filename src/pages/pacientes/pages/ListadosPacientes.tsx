@@ -215,11 +215,12 @@ const Modal = ({ isOpen, onClose, children }: { isOpen: boolean; onClose: () => 
 
 const ListadoPacientes = () => {
   const [patients, setPatients] = useState<any[]>([]);
+  const [records, setRecords] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  const [modalType, setModalType] = useState<"recetas" | "consultas" | null>(null);
+  const [modalType, setModalType] = useState<"recetas" | "consultas" | "historial" | null>(null);
   const [selectedPaciente, setSelectedPaciente] = useState<any | null>(null);
 
   const [consultas, setConsultas] = useState<any[]>([]);
@@ -227,11 +228,14 @@ const ListadoPacientes = () => {
   const [indexActivo, setIndexActivo] = useState(0);
 
   useEffect(() => {
-    const fetchPatients = async () => {
-      const data = await readPatients();
-      setPatients(data.result);
+    const fetchData = async () => {
+      const patientsData = await readPatients();
+      const healthRecordsData = await readHealthRecords();
+
+      setPatients(Array.isArray(patientsData) ? patientsData : (patientsData.result || []));
+      setRecords(Array.isArray(healthRecordsData) ? healthRecordsData : (healthRecordsData.result || []));
     };
-    fetchPatients();
+    fetchData();
   }, []);
 
   const labelMap: Record<string, string> = {
@@ -268,14 +272,20 @@ const ListadoPacientes = () => {
   const totalPages = Math.ceil(filteredPatients.length / itemsPerPage);
   const currentItems = filteredPatients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const openModal = async (paciente: any, type: "recetas" | "consultas") => {
+  // Devuelve el número de historiales médicos para un paciente dado
+  const getHistorialCount = (patientId: number) => {
+    return records.filter((rec) => rec.patient_id === patientId).length;
+  };
+
+  const openModal = async (paciente: any, type: "recetas" | "consultas" | "historial") => {
     setSelectedPaciente(paciente);
     setModalType(type);
     setIndexActivo(0);
 
     if (type === "recetas") {
       const all = await readConsults();
-      const filtradas = all.result
+      const arr = all.result || all;
+      const filtradas = arr
         .filter((r: any) => r.patient_id === paciente.id)
         .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       setRecetas(filtradas);
@@ -283,11 +293,13 @@ const ListadoPacientes = () => {
 
     if (type === "consultas") {
       const all = await readHealthRecords();
-      const filtradas = all.result
+      const arr = all.result || all;
+      const filtradas = arr
         .filter((c: any) => c.patient_id === paciente.id)
         .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       setConsultas(filtradas);
     }
+    // No carga extra para "historial", ya que los records ya están en estado
   };
 
   const closeModal = () => {
@@ -300,7 +312,7 @@ const ListadoPacientes = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-white">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-4xl w-full border border-gray-300">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-5xl w-full border border-gray-300">
         <h1 className="text-2xl font-bold mb-4 text-black">Listado de Pacientes</h1>
 
         <input
@@ -315,6 +327,7 @@ const ListadoPacientes = () => {
           <thead>
             <tr>
               <th className="py-2 px-4 border-b text-left">Nombre</th>
+              <th className="py-2 px-4 border-b text-left">Historiales</th>
               <th className="py-2 px-4 border-b text-left">Acciones</th>
             </tr>
           </thead>
@@ -322,12 +335,19 @@ const ListadoPacientes = () => {
             {currentItems.map(p => (
               <tr key={p.id}>
                 <td className="py-2 px-4 border-b">{p.name} {p.surnames}</td>
+                <td className="py-2 px-4 border-b text-center">{getHistorialCount(p.id)}</td>
                 <td className="py-2 px-4 border-b flex gap-2">
                   <button
                     onClick={() => openModal(p, "recetas")}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
                   >
                     Recetas
+                  </button>
+                  <button
+                    onClick={() => openModal(p, "historial")}
+                    className="bg-gray-700 hover:bg-gray-800 text-white px-3 py-1 rounded text-sm"
+                  >
+                    Ver Historial
                   </button>
                   <button
                     onClick={() => openModal(p, "consultas")}
@@ -381,6 +401,32 @@ const ListadoPacientes = () => {
                 className="bg-gray-300 text-black px-4 py-1 rounded disabled:opacity-50"
               >Siguiente</button>
             </div>
+          </>
+        )}
+
+        {modalType === "historial" && selectedPaciente && (
+          <>
+            <h2 className="text-xl font-bold mb-4 text-black">
+              Historial Médico de {selectedPaciente.name}
+            </h2>
+            {records.filter((r) => r.patient_id === selectedPaciente.id).length > 0 ? (
+              records
+                .filter((r) => r.patient_id === selectedPaciente.id)
+                .map((record, index) => (
+                  <div key={index} className="border-b border-gray-300 py-2">
+                    {Object.entries(record).map(([key, value]) => {
+                      if (["id", "patient_id", "created_at", "updated_at", "medical_consent_form"].includes(key)) return null;
+                      const label = labelMap[key] || key;
+                      return (
+                        <p key={key}><strong>{label}:</strong> {String(value || "N/A")}</p>
+                      );
+                    })}
+                    <p><strong>Fecha:</strong> {new Date(record.created_at).toLocaleString()}</p>
+                  </div>
+                ))
+            ) : (
+              <p className="text-gray-600">No hay historiales disponibles para este paciente.</p>
+            )}
           </>
         )}
 
