@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/img/logo.png";
-
+import { login } from "@/services/authService";  
 export default function Login() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("Cime");
@@ -40,37 +40,46 @@ export default function Login() {
     if (token) navigate("/dashboard");
   }, []);
 
-  useEffect(() => {
+ useEffect(() => {
     const interval = setInterval(() => {
       setVisible(false);
       setTimeout(() => {
-        setFraseActual((prev) => (prev + 1) % frases.length);
+        // Elegir una frase aleatoria diferente a la actual
+        let nuevaFrase;
+        do {
+          nuevaFrase = Math.floor(Math.random() * frases.length);
+        } while (nuevaFrase === fraseActual);
+
+        setFraseActual(nuevaFrase);
         setVisible(true);
-      }, 500);
-    }, 15000);
+      }, 400); // breve efecto de transición
+    }, 6000); // cambio cada 6 segundos
     return () => clearInterval(interval);
-  }, []);
+  }, [fraseActual]);
 
-  const handleLogin = () => {
-    if (!username || !password) {
-      setError("Por favor, completa todos los campos.");
-      return;
-    }
+const handleLogin = async () => {
+  if (!username || !password) {
+    setError("Por favor, completa todos los campos.");
+    return;
+  }
 
-    setLoading(true);
-    setError(null);
+  setLoading(true);
+  setError(null);
 
-    // 🔹 Simulación de login sin backend
-    setTimeout(() => {
-      if (username === "Cime" && password === "cime1") {
-        sessionStorage.setItem("token", "fake-access-token");
-        navigate("/dashboard");
-      } else {
-        setError("Credenciales inválidas.");
-      }
-      setLoading(false);
-    }, 800);
-  };
+  try {
+    const { accessToken } = await login(username, password); // se usa servicio real
+
+    if (!accessToken) throw new Error("Token no recibido.");
+
+    sessionStorage.setItem("token", accessToken);
+    navigate("/dashboard");
+  } catch (error: any) {
+    console.error("Error en login:", error);
+    setError(error.message || "Credenciales inválidas o error del servidor.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex h-screen">
