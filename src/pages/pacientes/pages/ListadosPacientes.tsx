@@ -268,27 +268,27 @@ const ListadoPacientes = () => {
   const totalPages = Math.ceil(filteredPatients.length / itemsPerPage);
   const currentItems = filteredPatients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const openModal = async (paciente: any, type: "recetas" | "consultas") => {
-    setSelectedPaciente(paciente);
-    setModalType(type);
-    setIndexActivo(0);
+  // const openModal = async (paciente: any, type: "recetas" | "consultas") => {
+  //   setSelectedPaciente(paciente);
+  //   setModalType(type);
+  //   setIndexActivo(0);
 
-    if (type === "recetas") {
-      const all = await readConsults();
-      const filtradas = all.result
-        .filter((r: any) => r.patient_id === paciente.id)
-        .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      setRecetas(filtradas);
-    }
+  //   if (type === "recetas") {
+  //     const all = await readConsults();
+  //     const filtradas = all.result
+  //       .filter((r: any) => r.patient_id === paciente.id)
+  //       .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  //     setRecetas(filtradas);
+  //   }
 
-    if (type === "consultas") {
-      const all = await readHealthRecords();
-      const filtradas = all.result
-        .filter((c: any) => c.patient_id === paciente.id)
-        .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      setConsultas(filtradas);
-    }
-  };
+  //   if (type === "consultas") {
+  //     const all = await readHealthRecords();
+  //     const filtradas = all.result
+  //       .filter((c: any) => c.patient_id === paciente.id)
+  //       .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  //     setConsultas(filtradas);
+  //   }
+  // };
 
   const closeModal = () => {
     setSelectedPaciente(null);
@@ -323,7 +323,7 @@ const ListadoPacientes = () => {
               <tr key={p.id}>
                 <td className="py-2 px-4 border-b">{p.name} {p.surnames}</td>
                 <td className="py-2 px-4 border-b flex gap-2">
-                  <button
+                  {/* <button
                     onClick={() => openModal(p, "recetas")}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
                   >
@@ -334,7 +334,7 @@ const ListadoPacientes = () => {
                     className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
                   >
                     Consultas
-                  </button>
+                  </button> */}
                 </td>
               </tr>
             ))}
