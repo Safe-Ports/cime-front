@@ -57,11 +57,11 @@ export const ListaSubApartados = {
         icon: Icons.FaNotesMedical,
         path: "/dashboard/pacientes/capturardatosmedicos",
       },
-      // (se deshabilita temporalmente la creacion de recetas) {
-      //   title: "Recetas Pacientes",
-      //   icon: Icons.FaFilePrescription,
-      //   path: "/dashboard/pacientes/recetaspacientes",
-      // },
+      {
+        title: "Recetas Pacientes",
+        icon: Icons.FaFilePrescription,
+        path: "/dashboard/pacientes/recetaspacientes",
+      },
       {
         title: "Expedientes Médicos",
         icon: Icons.FaClipboardList,
