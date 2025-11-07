@@ -2,36 +2,9 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { createHealthRecord } from "@/services/healthrecordsService";
 import { readPatients } from "@/services/patientsService";
-import { API_BASE_URL } from "@/config";
 
 const CapturarDatosMedicos: React.FC = () => {
   const [patients, setPatients] = useState<{ id: string; name: string; surnames: string; gender: string; birthday: string }[]>([]);
-  useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_BASE_URL}/patients/`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-      const patientsData = await response.json();
-
-      // 🔍 Intentamos detectar en qué nivel vienen los datos
-      if (Array.isArray(patientsData)) {
-        setPatients(patientsData);
-      } else if (Array.isArray(patientsData.result)) {
-        setPatients(patientsData.result);
-      } else if (Array.isArray(patientsData.patients)) {
-        setPatients(patientsData.patients);
-      }
-    } catch (error) {
-    }
-  };
-  fetchData();
-}, []);
   const [formData, setFormData] = useState({
     patient_id: "",
     age: "",
@@ -60,7 +33,26 @@ const CapturarDatosMedicos: React.FC = () => {
     medical_consent_form: false,
   });
 
-
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const data = await readPatients();
+        const patientsList = Array.isArray(data)
+          ? data
+          : (data?.result || data?.patients || []);
+        console.log("📥 Datos normalizados desde backend:", patientsList);
+        if (patientsList.length > 0) {
+          setPatients(patientsList);
+        } else {
+          toast.error("No se encontraron pacientes registrados", { toastId: "no-patients" });
+        }
+      } catch (error) {
+        console.error("❌ Error al obtener pacientes:", error);
+        toast.error("Error al obtener pacientes", { toastId: "fetch-patients-error" });
+      }
+    };
+    fetchPatients();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -110,6 +102,7 @@ const CapturarDatosMedicos: React.FC = () => {
       });
     } catch (error) {
       toast.error("Error al guardar los datos médicos", { toastId: "health-record-error" });
+      console.error(error);
     }
   };
   
