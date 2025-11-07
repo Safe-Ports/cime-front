@@ -116,7 +116,7 @@
 // export default App;
 
 
-// import React from "react";
+import React from "react";
 import CapturarDatosMedicos from "@/pages/pacientes/pages/CapturarDatosMedicos";
 
 function App() {
