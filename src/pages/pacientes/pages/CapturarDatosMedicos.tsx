@@ -2,9 +2,34 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { createHealthRecord } from "@/services/healthrecordsService";
 import { readPatients } from "@/services/patientsService";
+import { API_BASE_URL } from "@/config";
 
 const CapturarDatosMedicos: React.FC = () => {
-  const [patients, setPatients] = useState<{ id: string | number; name: string; surnames: string }[]>([]);
+  const [patients, setPatients] = useState<{ id: string; name: string; surnames: string; gender: string; birthday: string }[]>([]);
+  useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/patients/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      const patientsData = await response.json();
+
+      // 🔍 Intentamos detectar en qué nivel vienen los datos
+      if (patientsData?.result && Array.isArray(patientsData.result)) {
+  setPatients(patientsData.result);
+} else {
+  setPatients([]);
+}
+    } catch (error) {
+    }
+  };
+  fetchData();
+}, []);
   const [formData, setFormData] = useState({
     patient_id: "",
     age: "",
@@ -33,24 +58,7 @@ const CapturarDatosMedicos: React.FC = () => {
     medical_consent_form: false,
   });
 
-  useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const data = await readPatients();
-        const list = Array.isArray((data as any)?.result)
-          ? (data as any).result
-          : Array.isArray(data)
-          ? (data as any)
-          : [];
-        setPatients(list);
-      } catch (error) {
-        toast.error("Error al obtener pacientes");
-        setPatients([]);
-      }
-    };
 
-    fetchPatients();
-  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -58,20 +66,19 @@ const CapturarDatosMedicos: React.FC = () => {
     const target = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
     const { name, value, type } = target;
     const checked = (target as HTMLInputElement).checked;
-
+  
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       await createHealthRecord(formData);
-      toast.success("Datos médicos guardados correctamente");
-
+      toast.success("Datos médicos guardados correctamente", { toastId: "health-record-success" });
       setFormData({
         patient_id: "",
         age: "",
@@ -100,38 +107,60 @@ const CapturarDatosMedicos: React.FC = () => {
         medical_consent_form: false,
       });
     } catch (error) {
-      toast.error("Error al guardar los datos médicos");
-      console.error(error);
+      toast.error("Error al guardar los datos médicos", { toastId: "health-record-error" });
     }
   };
+  
+  const isFormValid = Object.values(formData).every(
+    (val) => val !== "" && val !== null && val !== undefined
+  ) && formData.medical_consent_form;
 
-  const isFormValid =
-    Object.values(formData).every((val) => val !== "" && val !== null && val !== undefined) &&
-    formData.medical_consent_form;
+  const selectedPatient = patients.find(p => p.id === formData.patient_id);
 
   return (
-    <div className="flex justify-center items-start pt-28 pb-10 bg-white">
-      <div className="bg-gray-100 p-8 rounded-lg shadow-md max-w-5xl w-full">
-        <h2 className="text-2xl font-bold mb-6 text-black text-center">
+    <div className="flex justify-center items-start pt-28 pb-10 bg-[#f5f6fa] min-h-screen">
+      <div className="bg-[#f0f2f5] p-10 rounded-xl shadow-lg max-w-5xl w-full border border-gray-200">
+        <h2 className="text-3xl font-bold mb-8 text-gray-800 text-center tracking-tight">
           Capturar Datos del Paciente
         </h2>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-7">
+          {/* Selector de paciente */}
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-black mb-1">Seleccionar Paciente</label>
+            <label className="block text-base font-semibold text-gray-700 mb-2">Seleccionar Paciente</label>
             <select
               name="patient_id"
               value={formData.patient_id}
               onChange={handleChange}
-              className="w-full p-2 rounded bg-white text-black border border-gray-300"
+              className="w-full p-3 rounded-lg bg-white text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
             >
               <option value="">Seleccione un paciente</option>
               {patients.map((p) => (
-                <option key={String(p.id)} value={String(p.id)}>
-                  {p.name} {p.surnames}
+                <option key={p.id} value={p.id}>
+                  {`${p.name} ${p.surnames}`}
                 </option>
               ))}
             </select>
+            {formData.patient_id && selectedPatient && (
+              <div className="bg-white p-5 rounded-xl border border-gray-200 mt-4 mb-2 shadow flex flex-col md:flex-row md:space-x-8 space-y-2 md:space-y-0">
+                <div>
+                  <span className="block text-xs text-gray-500">Nombre</span>
+                  <span className="font-medium text-gray-800">{selectedPatient.name} {selectedPatient.surnames}</span>
+                </div>
+                <div>
+                  <span className="block text-xs text-gray-500">Género</span>
+                  <span className="font-medium text-gray-800">{selectedPatient.gender}</span>
+                </div>
+                <div>
+                  <span className="block text-xs text-gray-500">Fecha de Nacimiento</span>
+                  <span className="font-medium text-gray-800">{selectedPatient.birthday}</span>
+                </div>
+                <div>
+                  <span className="block text-xs text-gray-500">Edad</span>
+                  <span className="font-medium text-gray-800">{formData.age || "No especificada"}</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {[
@@ -144,13 +173,13 @@ const CapturarDatosMedicos: React.FC = () => {
             { label: "Frecuencia Respiratoria (rpm)", name: "respiratory_rate", type: "number" },
           ].map(({ label, name, type }) => (
             <div key={name}>
-              <label className="block text-sm font-medium text-black mb-1">{label}</label>
+              <label className="block text-base font-medium text-gray-700 mb-2">{label}</label>
               <input
                 type={type}
                 name={name}
                 value={formData[name as keyof typeof formData] as string}
                 onChange={handleChange}
-                className="w-full p-2 rounded bg-white text-black border border-gray-300"
+                className="w-full p-3 rounded-lg bg-white text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
               />
             </div>
           ))}
@@ -173,24 +202,25 @@ const CapturarDatosMedicos: React.FC = () => {
             { label: "Impacto del Síntoma en la Vida Diaria", name: "symptom_impact_on_daily_life" },
           ].map(({ label, name }) => (
             <div key={name} className="md:col-span-2">
-              <label className="block text-sm font-medium text-black mb-1">{label}</label>
+              <label className="block text-base font-medium text-gray-700 mb-2">{label}</label>
               <textarea
                 name={name}
                 rows={2}
                 value={formData[name as keyof typeof formData] as string}
                 onChange={handleChange}
-                className="w-full p-2 rounded bg-white text-black border border-gray-300"
+                className="w-full p-3 rounded-lg bg-white text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
               ></textarea>
             </div>
           ))}
 
+          {/* Nivel de Actividad */}
           <div>
-            <label className="block text-sm font-medium text-black mb-1">Nivel de Actividad</label>
+            <label className="block text-base font-medium text-gray-700 mb-2">Nivel de Actividad</label>
             <select
               name="activity_level"
               value={formData.activity_level}
               onChange={handleChange}
-              className="w-full p-2 rounded bg-white text-black border border-gray-300"
+              className="w-full p-3 rounded-lg bg-white text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
             >
               <option value="">Seleccione</option>
               <option value="Sedentary">Sedentario</option>
@@ -199,24 +229,29 @@ const CapturarDatosMedicos: React.FC = () => {
             </select>
           </div>
 
-          <div className="md:col-span-2 flex items-center space-x-2">
+          {/* Consentimiento */}
+          <div className="md:col-span-2 flex items-center space-x-3 mt-2">
             <input
               type="checkbox"
               name="medical_consent_form"
               checked={formData.medical_consent_form}
               onChange={handleChange}
+              className="accent-blue-600 w-5 h-5"
             />
-            <label className="text-sm font-medium text-black">
+            <label className="text-base font-medium text-gray-700 select-none">
               Acepto el consentimiento médico informado
             </label>
           </div>
 
-          <div className="md:col-span-2">
+          {/* Botón */}
+          <div className="md:col-span-2 mt-4">
             <button
               type="submit"
               disabled={!isFormValid}
-              className={`w-full py-2 px-4 rounded transition ${
-                isFormValid ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-gray-400 text-white cursor-not-allowed"
+              className={`w-full py-3 px-4 rounded-lg font-semibold text-lg shadow transition ${
+                isFormValid
+                  ? "bg-blue-600 hover:bg-blue-700 text-white"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
               }`}
             >
               Guardar
