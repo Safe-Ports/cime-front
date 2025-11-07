@@ -179,4 +179,4 @@
 //   );
 // };
 
-// export default RecetasPacientes;
+export default RecetasPacientes;
