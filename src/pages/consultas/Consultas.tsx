@@ -10,4 +10,4 @@
 //   );
 // };
 
-// export default Consultas;
+export default Consultas;
