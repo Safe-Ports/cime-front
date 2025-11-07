@@ -183,7 +183,11 @@ const CapturarDatosMedicos: React.FC = () => {
     const fetchPatients = async () => {
       try {
         const data = await readPatients();
-        setPatients(Array.isArray(data) ? data : []);
+        setPatients(
+          Array.isArray(data)
+            ? data
+            : data.result || data.patients || []
+        );
       } catch (error) {
         toast.error("Error al obtener pacientes");
       }
