@@ -20,11 +20,13 @@ const CapturarDatosMedicos: React.FC = () => {
       const patientsData = await response.json();
 
       // 🔍 Intentamos detectar en qué nivel vienen los datos
-      if (patientsData?.result && Array.isArray(patientsData.result)) {
-  setPatients(patientsData.result);
-} else {
-  setPatients([]);
-}
+      if (Array.isArray(patientsData)) {
+        setPatients(patientsData);
+      } else if (Array.isArray(patientsData.result)) {
+        setPatients(patientsData.result);
+      } else if (Array.isArray(patientsData.patients)) {
+        setPatients(patientsData.patients);
+      }
     } catch (error) {
     }
   };
