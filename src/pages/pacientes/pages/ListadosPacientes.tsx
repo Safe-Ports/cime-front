@@ -430,7 +430,7 @@ const ListadoPacientes = () => {
           </>
         )}
 
-        {/* {modalType === "consultas" && selectedPaciente && consultas.length > 0 && (
+        {modalType === "consultas" && selectedPaciente && consultas.length > 0 && (
           <>
             <h2 className="text-xl font-bold mb-4 text-black">Consultas de {selectedPaciente.name}</h2>
             {Object.entries(consultas[indexActivo]).map(([key, value]) => {
@@ -439,7 +439,7 @@ const ListadoPacientes = () => {
               return (
                 <p key={key}><strong>{label}:</strong> {String(value)}</p>
               );
-            })} */}
+            })}
 
             <p><strong>Fecha:</strong> {new Date(consultas[indexActivo].created_at).toLocaleString()}</p>
 
