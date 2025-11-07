@@ -197,8 +197,8 @@ import { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 import { readHealthRecords } from "@/services/healthrecordsService";
 import { readPatients } from "@/services/patientsService";
-import { createConsult } from "@/services/consultsService";
-import { toast } from "react-toastify";
+// import { createConsult } from "@/services/consultsService";
+// import { toast } from "react-toastify";
 
 const HistorialConsultas: React.FC = () => {
   const [pacientes, setPacientes] = useState<any[]>([]);
@@ -209,9 +209,10 @@ const HistorialConsultas: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  const [isRecetaModalOpen, setIsRecetaModalOpen] = useState(false);
-  const [recetaPaciente, setRecetaPaciente] = useState<any | null>(null);
-  const [recetaTexto, setRecetaTexto] = useState("");
+  // Estado para el modal de receta
+  // const [isRecetaModalOpen, setIsRecetaModalOpen] = useState(false);
+  // const [recetaPaciente, setRecetaPaciente] = useState<any | null>(null);
+  // const [recetaTexto, setRecetaTexto] = useState("");
 
   const fetchData = async () => {
     try {
@@ -262,31 +263,29 @@ const HistorialConsultas: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const handleOpenRecetaModal = (paciente: any) => {
-    setRecetaPaciente(paciente);
-    setRecetaTexto("");
-    setIsRecetaModalOpen(true);
-  };
-
-  const handleSubmitReceta = async () => {
-    if (!recetaPaciente) return;
-  
-    const payload = {
-      patient_id: recetaPaciente.patient_id,
-      prescription_medication: [{ medicament_id: "" }],
-      prescription: recetaTexto,
-    };
-  
-    try {
-      await createConsult(payload);
-      toast.success("Receta creada correctamente");
-      setIsRecetaModalOpen(false);
-      await fetchData();
-    } catch (error) {
-      toast.error("Error al crear receta");
-      console.error(error);
-    }
-  };
+  // Funciones relacionadas con recetas y consultas
+  // const handleOpenRecetaModal = (paciente: any) => {
+  //   setRecetaPaciente(paciente);
+  //   setRecetaTexto("");
+  //   setIsRecetaModalOpen(true);
+  // };
+  // const handleSubmitReceta = async () => {
+  //   if (!recetaPaciente) return;
+  //   const payload = {
+  //     patient_id: recetaPaciente.patient_id,
+  //     prescription_medication: [{ medicament_id: "" }],
+  //     prescription: recetaTexto,
+  //   };
+  //   try {
+  //     await createConsult(payload);
+  //     toast.success("Receta creada correctamente");
+  //     setIsRecetaModalOpen(false);
+  //     await fetchData();
+  //   } catch (error) {
+  //     toast.error("Error al crear receta");
+  //     console.error(error);
+  //   }
+  // };
 
 
   const labelMap: Record<string, string> = {
@@ -351,14 +350,16 @@ const HistorialConsultas: React.FC = () => {
                     >
                       Ver Detalles
                     </button>
+                    {/* Botón de receta comentado */}
+                    {/* 
                     <button
                       onClick={() => handleOpenRecetaModal(paciente)}
                       className="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded"
                     >
                       Crear Receta
                     </button>
+                    */}
                   </div>
-
                 </td>
               </tr>
             ))}
@@ -388,6 +389,8 @@ const HistorialConsultas: React.FC = () => {
         </div>
       </div>
 
+      {/* Modal de receta comentado */}
+      {/*
       {isRecetaModalOpen && recetaPaciente && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative border border-gray-300">
@@ -397,10 +400,8 @@ const HistorialConsultas: React.FC = () => {
             >
               <FaTimes />
             </button>
-
             <h2 className="text-xl font-bold text-black mb-4">Crear Receta</h2>
             <p className="text-black mb-2 font-semibold">{recetaPaciente.nombreCompleto}</p>
-
             <textarea
               rows={5}
               placeholder="Escribe la receta aquí..."
@@ -408,7 +409,6 @@ const HistorialConsultas: React.FC = () => {
               onChange={(e) => setRecetaTexto(e.target.value)}
               className="w-full p-2 rounded bg-white text-black border border-gray-300 mb-4"
             ></textarea>
-
             <button
               onClick={handleSubmitReceta}
               disabled={!recetaTexto.trim()}
@@ -422,6 +422,7 @@ const HistorialConsultas: React.FC = () => {
           </div>
         </div>
       )}
+      */}
 
 
       {isModalOpen && selectedPaciente && (
