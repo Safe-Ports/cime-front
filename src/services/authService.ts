@@ -6,8 +6,11 @@ export const login = async (username: string, password: string) => {
   formData.append('password', password);
 
   try {
-    const response = await fetch(API_ROUTES.AUTH.LOGIN, {
+    const response = await fetch(`${API_ROUTES.AUTH.LOGIN}/`, {
       method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
       body: formData,
     });
 
