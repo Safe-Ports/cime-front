@@ -53,7 +53,7 @@ export const ListaSubApartados = {
         path: "/dashboard/pacientes/registrarpacientes",
       },
       {
-        title: "Capturar Datos Médicos",
+        title: "Expedientes Medicos",
         icon: Icons.FaNotesMedical,
         path: "/dashboard/pacientes/capturardatosmedicos",
       },
