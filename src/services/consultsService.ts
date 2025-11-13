@@ -4,7 +4,7 @@ import { API_ROUTES } from "@/config/api";
 export const createConsult = async (data: any) => {
   const token = sessionStorage.getItem("token");
 
-  const response = await fetch(API_ROUTES.PATIENTS.CONSULTS.CREATE, {
+  const response = await fetch(API_ROUTES.CONSULTS.CREATE, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -24,7 +24,7 @@ export const createConsult = async (data: any) => {
 export const readConsults = async () => {
   const token = sessionStorage.getItem("token");
 
-  const response = await fetch(API_ROUTES.PATIENTS.CONSULTS.READ, {
+  const response = await fetch(API_ROUTES.CONSULTS.READ, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -42,7 +42,7 @@ export const readConsults = async () => {
 export const updateConsult = async (consult_id: string, data: any) => {
   const token = sessionStorage.getItem("token");
 
-  const response = await fetch(API_ROUTES.PATIENTS.CONSULTS.UPDATE(consult_id), {
+  const response = await fetch(API_ROUTES.CONSULTS.UPDATE(consult_id), {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -62,7 +62,7 @@ export const updateConsult = async (consult_id: string, data: any) => {
 export const deleteConsult = async (consult_id: string) => {
   const token = sessionStorage.getItem("token");
 
-  const response = await fetch(API_ROUTES.PATIENTS.CONSULTS.DELETE(consult_id), {
+  const response = await fetch(API_ROUTES.CONSULTS.DELETE(consult_id), {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
