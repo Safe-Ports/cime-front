@@ -31,7 +31,7 @@ export const createPatient = async (data: PatientData) => {
 export const readPatients = async () => {
   const token = sessionStorage.getItem("token");
 
-  const response = await fetch(API_ROUTES.PATIENTS.READ, {
+  const response = await fetch(`${API_ROUTES.PATIENTS.READ}/`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
